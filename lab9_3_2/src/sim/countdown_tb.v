@@ -29,20 +29,20 @@ reg clk_1Hz;
 reg clk_500Hz;
 reg enable;
 reg reset;
-reg start_minutes;
+reg [1:0] start_minutes;
 wire [7:0] display_anodes;
 wire [6:0] display_cathodes;
 
 // display instantiation
 wire [3:0] seconds_count;
 wire [3:0] tens_count;
-wire [3:0] minutes_count;
+wire [1:0] minutes_count;
 
 triple_sevenseg display(
     .clk ( clk_500Hz ),
     .digit0 ( seconds_count ),
     .digit1 ( tens_count ),
-    .digit2 ( minutes_count ),
+    .digit2 ( {0, 0, minutes_count[1], minutes_count[0]} ),
     .cathodes ( display_cathodes ),
     .anodes ( display_anodes )
 );
