@@ -93,11 +93,6 @@ downcounter minutes(
     .zero_count ( minutes_zero )
 );
 
-// stop counting if all the numbers are zero
-wire all_zero;
-assign all_zero = seconds_zero & tens_zero & minutes_zero;
-assign ones_enable = enable & ~all_zero;
-
 // finally the testbenchy stuff
 // 1Hz clock
 always begin
@@ -114,13 +109,18 @@ end
 initial begin
     clk_1Hz = 0;
     clk_500Hz = 0;
-    reset = 1;
+    reset = 0;
     enable = 0;
     start_minutes = 1;
 
-    #1000;
+    // positive edge reset
+    #10000;
+    reset = 1;
+    #10000;
     reset = 0;
-    #1000;
+    #10000;
+
+    // start countdown
     enable = 1;
 
     #180000000; // three minutes
