@@ -34,7 +34,7 @@ wire [7:0] display_anodes;
 wire [6:0] display_cathodes;
 
 // display instantiation
-wire [3:0] ones_seconds_count;
+wire [3:0] seconds_count;
 wire [3:0] tens_count;
 wire [3:0] minutes_count;
 
