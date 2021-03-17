@@ -49,8 +49,13 @@ triple_sevenseg display(
 
 // clock dividers omitted from testbench
 
+// stop counting at 0
+wire all_zero;
+assign all_zero = seconds_zero & tens_zero & minutes_zero;
+
 // main time counters
 wire seconds_enable; // disable if count == 0; more later
+assign seconds_enable = enable & ~all_zero;
 wire seconds_zero;
 defparam seconds.MAX = 9;
 downcounter seconds(
@@ -63,7 +68,7 @@ downcounter seconds(
 );
 
 wire tens_zero, tens_enable;
-assign tens_enable = seconds_zero; // decrement tens when ones hits zero
+assign tens_enable = enable & seconds_zero & ~all_zero; // decrement tens when ones hits zero
 defparam tens_seconds.MAX = 5;
 downcounter tens_seconds(
     .clk ( clk_1Hz ),
@@ -76,7 +81,8 @@ downcounter tens_seconds(
 
 wire minutes_zero;
 wire minutes_enable;
-assign minutes_enable = seconds_zero & tens_zero;
+assign minutes_enable = enable & seconds_zero & tens_zero & ~all_zero;
+defparam minutes.WIDTH = 2;
 defparam minutes.MAX = 0; // only two switches
 downcounter minutes(
     .clk ( clk_1Hz ),
