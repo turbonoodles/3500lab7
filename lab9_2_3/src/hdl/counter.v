@@ -39,14 +39,14 @@ clk_wiz_0 gandalf (
 );      // input clk_in1
 
 // clock divider
-reg [19:0] divider_count;
+reg [21:0] divider_count;
 always @(posedge clk_5MHz, posedge reset ) begin
     
     if (reset) divider_count <= 0;
     
     else begin
         if (divider_count == 0) begin
-            divider_count <= 500000;
+            divider_count <= 2500000;
             pulse_1s <= ~pulse_1s;
         end
         else divider_count <= divider_count - 1;
