@@ -30,17 +30,17 @@ module countdown(
     );
 
 // display instantiation
-wire [3:0] ones_seconds;
-wire [3:0] tens_seconds;
-wire [3:0] minutes;
+wire [3:0] seconds_count;
+wire [3:0] tens_count;
+wire [1:0] minutes_count;
 
 triple_sevenseg display(
-    .clk (clk_500Hz),
-    .digit0 (ones_seconds),
-    .digit1 (tens_seconds),
-    .digit2 (minutes),
-    .cathodes (display_cathodes),
-    .anodes (display_anodes)
+    .clk ( clk_500Hz ),
+    .digit0 ( seconds_count ),
+    .digit1 ( tens_count ),
+    .digit2 ( {0, 0, minutes_count[1], minutes_count[0]} ),
+    .cathodes ( display_cathodes ),
+    .anodes ( display_anodes )
 );
 
 // 5MHz clock divider
@@ -65,31 +65,40 @@ always @( clk_5MHz ) begin
     end
 end
 
+// stop counting at 0
+wire all_zero;
+assign all_zero = seconds_zero & tens_zero & minutes_zero;
+
 // main time counters
-wire minutes_enable;
-wire [3:0] seconds_count;
+wire seconds_enable; // disable if count == 0; more later
+assign seconds_enable = enable & ~all_zero;
+wire seconds_zero;
 defparam seconds.MAX = 9;
 downcounter seconds(
     .clk ( clk_1Hz ),
-    .reset (reset),
-    .start_count (0),
-    .enable (enable),
-    .count (seconds_count),
-    .zero_count (tens_enable)
+    .reset ( reset ),
+    .start_count ( 0 ),
+    .enable ( seconds_enable ),
+    .count ( seconds_count ),
+    .zero_count ( seconds_zero )
 );
 
-wire [3:0] tens_count;
+wire tens_zero, tens_enable;
+assign tens_enable = enable & seconds_zero & ~all_zero; // decrement tens when ones hits zero
 defparam tens_seconds.MAX = 5;
 downcounter tens_seconds(
     .clk ( clk_1Hz ),
     .reset ( reset ),
-    .start_count (5),
+    .start_count ( 0 ),
     .enable ( tens_enable ),
     .count ( tens_count ),
-    .zero_count ( minutes_enable )
+    .zero_count ( tens_zero )
 );
 
-wire [3:0] minutes_count;
+wire minutes_zero;
+wire minutes_enable;
+assign minutes_enable = enable & seconds_zero & tens_zero & ~all_zero;
+defparam minutes.WIDTH = 2;
 defparam minutes.MAX = 0; // only two switches
 downcounter minutes(
     .clk ( clk_1Hz ),
