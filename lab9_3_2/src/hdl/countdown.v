@@ -54,7 +54,8 @@ clk_wiz_0 weasley(
 // 1Hz clock divider
 reg clk_1Hz;
 reg [24:0] divider_count;
-always @( clk_5MHz ) begin
+
+always @( posedge clk_5MHz ) begin
     if (reset) divider_count <= 2499999;
     else begin
         if ( divider_count == 0 ) begin
