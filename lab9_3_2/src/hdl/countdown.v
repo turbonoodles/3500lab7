@@ -56,14 +56,20 @@ reg clk_1Hz;
 reg [24:0] divider_count;
 
 always @( posedge clk_5MHz ) begin
-    if (reset) divider_count <= 2499999;
-    else begin
-        if ( divider_count == 0 ) begin
-            divider_count <= 2499999;
-            clk_1Hz = ~clk_1Hz;
-        end
-        else divider_count <= divider_count - 1;
+    if ( divider_count == 0 ) begin
+        divider_count <= 2499999;
+        clk_1Hz = ~clk_1Hz;
     end
+    else divider_count <= divider_count - 1;
+end
+
+reg[14:0] divider_count_500Hz;
+always @( posedge clk_5MHz ) begin
+    if ( divider_count_500Hz == 0 ) begin
+        divider_count_500Hz <= 24999;
+        clk_500Hz = ~clk_500Hz;
+    end
+    else divider_count_500Hz <= divider_count_500Hz - 1;
 end
 
 // stop counting at 0
