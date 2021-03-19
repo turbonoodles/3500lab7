@@ -40,29 +40,23 @@ reg clk_10Hz;
 
 // 10Hz clock generation for the timer
 always @(posedge clk_5MHz) begin
-    if (reset) div_count <= 249999;
-    else begin
-        if (div_count == 0) begin
-            div_count <= 249999;
-            clk_10Hz <= ~clk_10Hz;
-        end
-        else div_count <= div_count - 1;
+    if (div_count == 0) begin
+        div_count <= 249999;
+        clk_10Hz <= ~clk_10Hz;
     end
+    else div_count <= div_count - 1;
 end
 
 // 500Hz clock generation for the display
-reg [13:0] disp_div_count;
+reg [13:0] disp_div_count = 0;
 reg clk_500Hz;
 
 always @(posedge clk_5MHz) begin
-    if (reset) disp_div_count <= 10000;
-    else begin
-        if (disp_div_count == 0) begin
-            disp_div_count <= 10000;
-            clk_500Hz <= ~clk_500Hz;
-        end
-        else disp_div_count <= disp_div_count - 1;
+    if (disp_div_count == 0) begin
+        disp_div_count <= 10000;
+        clk_500Hz <= ~clk_500Hz;
     end
+    else disp_div_count <= disp_div_count - 1;
 end
 
 // instantiate counters
