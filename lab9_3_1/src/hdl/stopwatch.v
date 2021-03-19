@@ -68,20 +68,21 @@ end
 // instantiate counters
 // tenths of seconds
 wire[3:0] tenths_digit;
-wire ones_enable;
+wire point_nine;
 wire enable; // both enable_in and under 5 minutes; more later
 mod_10_counter tenths_secs(
     .CLK (clk_10Hz),
     .CE (enable),
     .SCLR (reset),
-    .THRESH0 (ones_enable),
+    .THRESH0 (point_nine),
     .Q (tenths_digit)
 );
 
 // seconds counter
 wire[3:0] seconds_digit;
 wire nine;
-
+wire ones_enable;
+assign ones_enable = point_nine & enable;
 mod_10_counter seconds(
     .CLK (clk_10Hz),
     .CE (ones_enable),
@@ -92,10 +93,11 @@ mod_10_counter seconds(
 
 wire[3:0] tens_seconds_digit;
 wire fifty;
-
+wire tens_enable;
+assign tens_enable = point_nine & nine & enable;
 mod_6_counter tens_seconds(
     .CLK (clk_10Hz),
-    .CE ( nine ),
+    .CE ( tens_enable ),
     .SCLR (reset),
     .THRESH0 (fifty),
     .Q (tens_seconds_digit)
@@ -103,7 +105,7 @@ mod_6_counter tens_seconds(
 
 // only count minutes if 59s
 wire count_minutes;
-assign count_minutes = fifty & nine;
+assign count_minutes = point_nine & nine & fifty & enable;
 wire [3:0] minutes_digit;
 
 mod_6_counter minutes(
@@ -127,8 +129,6 @@ quad_sevenseg display(
 
 // stop counting at 5 minutes
 // all the thresholds are on
-wire tc;
-assign tc = ones_enable & nine & fifty & five; // terminal count of five minutes
-assign enable = enable_in & ~tc;
+assign enable = enable_in & ~five; // stop counting at 5 minutes
 
 endmodule
